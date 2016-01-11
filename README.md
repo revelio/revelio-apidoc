@@ -1,2 +1,2 @@
 # revelio-apidoc
-Publish ApiDoc documentation to Revelio
+Tool utilizing [apidoc](https://github.com/apidoc/apidoc) to publish documentation to Revelio
