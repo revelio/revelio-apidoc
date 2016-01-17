@@ -1,0 +1,32 @@
+{
+    "name": "revelio-apidoc",
+    "version": "0.1.0",
+    "description": "Revelio publishing tool for ApiDoc documentation",
+    "author": "Matt Dickinson (matt@getrevelio.com)",
+    "dependencies": {
+        "apidoc-core": "~0.5.1",
+        "underscore": "~1.8.3"
+    },
+  "main": "./lib/index.js",
+  "homepage": "https://github.com/revelio/revelio-apidoc",
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/revelio/revelio-apidoc.git"
+    },
+    "bugs": {
+        "url": "https://github.com/revelio/revelio-apidoc/issues"
+    },
+    "keywords": [
+        "revelio",
+        "api",
+        "apidoc",
+        "doc",
+        "documentation",
+        "rest",
+        "restful"
+    ],
+    "engines": {
+        "node": ">= 0.10.0"
+    },
+    "license": "MIT"
+}
