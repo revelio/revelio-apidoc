@@ -1,4 +1,14 @@
+var AssertChain = require("assertchain-jasmine");
 var factory = require("../lib/endpointFactory.js");
+
+AssertChain.Extensions.hasName = function (expectedName) {
+    this.areEqual(expectedName, this.context.name);
+    return this;
+}
+AssertChain.Extensions.hasDescription = function (expectedDescription) {
+    this.areEqual(expectedDescription, this.context.description);
+    return this;
+}
 
 describe("create", function () {
 
@@ -122,15 +132,22 @@ describe("create", function () {
             var result = factory.create(block);
            
             //Assert
-            expect(result.parameters.length).toBe(2);
-            expect(result.parameters[0].name).toBe("stringParam");
-            expect(result.parameters[0].description).toBe("String parameter");
-            expect(result.parameters[0].type.name).toBe("String");
-            expect(result.parameters[1].name).toBe("int32Param");
-            expect(result.parameters[1].isOptional).toBe(true);
-            expect(result.parameters[1].type.name).toBe("Int32");
+            AssertChain.with(result.parameters, function (obj) {
+                this.areEqual(2, obj.length)
+                    .with(obj[0], function (obj) {
+                        this.hasName("stringParam")
+                            .hasDescription("String parameter")
+                            .areEqual("String", obj.type.name);
+                    })
+                    .with(obj[1], function (obj) {
+                        this.hasName("int32Param")
+                            .isTrue(obj.isOptional)
+                            .areEqual("Int32", obj.type.name);
+                    })
+
+            });
         });
-        
+
         it("adds complex parameters", function () {
             //Arrange
             var block = {
@@ -158,13 +175,21 @@ describe("create", function () {
             var result = factory.create(block);
            
             //Assert
-            expect(result.parameters.length).toBe(1);
-            expect(result.parameters[0].type.isComplex).toBe(true);
-            expect(result.parameters[0].type.properties.length).toBe(1);
-            expect(result.parameters[0].type.properties[0].name).toBe("complex");
-            expect(result.parameters[0].type.properties[0].type.properties.length).toBe(1);
-            expect(result.parameters[0].type.properties[0].type.properties[0].name).toBe("innerProperty");
-            expect(result.parameters[0].type.properties[0].type.properties[0].type.name).toBe("String");
+            AssertChain.with(result.parameters, function (obj) {
+                this.areEqual(1, obj.length)
+                    .with(obj[0].type, function (obj) {
+                        this.isTrue(obj.isComplex)
+                            .areEqual(1, obj.properties.length)
+                            .with(obj.properties[0], function (obj) {
+                                this.hasName("complex")
+                                    .areEqual(1, obj.type.properties.length)
+                                    .with(obj.type.properties[0], function (obj) {
+                                        this.hasName("innerProperty")
+                                            .areEqual("String", obj.type.name);
+                                    })
+                            })
+                    })
+            });
         });
     });
 
@@ -213,28 +238,33 @@ describe("create", function () {
         
             //Assert
             expect(result.responses.length).toBe(1);
-            var response = result.responses[0];
-            expect(response.code).toBe(200);
-            expect(response.description).toBe("Success");
-            expect(response.type.isCollection).toBeFalsy();
-            expect(response.type.isComplex).toBeTruthy();
-            expect(response.type.properties.length).toBe(2);
-            //Simple property
-            expect(response.type.properties[0].name).toBe("param1");
-            expect(response.type.properties[0].isOptional).toBeFalsy();
-            expect(response.type.properties[0].type.name).toBe("String");
-            expect(response.type.properties[0].type.isComplex).toBeFalsy();
-            expect(response.type.properties[0].description).toBe("param1 description")
-            //Complex property
-            expect(response.type.properties[1].name).toBe("complexParam");
-            expect(response.type.properties[1].isOptional).toBeTruthy();
-            expect(response.type.properties[1].type.isComplex).toBeTruthy();
-            expect(response.type.properties[1].type.properties.length).toBe(1);
-            expect(response.type.properties[1].type.properties[0].name).toBe("innerParam");
-            expect(response.type.properties[1].type.properties[0].isOptional).toBeFalsy();
-            expect(response.type.properties[1].type.properties[0].type.name).toBe("Number");
-            expect(response.type.properties[1].type.properties[0].type.isComplex).toBeFalsy();
-            expect(response.type.properties[1].type.properties[0].description).toBe("inner parameter")
+            AssertChain.with(result.responses[0], function (obj) {
+                this.areEqual(200, obj.code)
+                    .hasDescription("Success")
+                    .isFalse(obj.type.isCollection)
+                    .isTrue(obj.type.isComplex)
+                    .areEqual(2, obj.type.properties.length)
+                    .with(obj.type.properties[0], function (obj) {
+                        this.hasName("param1")
+                            .isFalse(obj.isOptional)
+                            .areEqual("String", obj.type.name)
+                            .isFalse(obj.type.isComplex)
+                            .hasDescription("param1 description")
+                    })
+                    .with(obj.type.properties[1], function (obj) {
+                        this.hasName("complexParam")
+                            .isTrue(obj.isOptional)
+                            .isTrue(obj.type.isComplex)
+                            .areEqual(1, obj.type.properties.length)
+                            .with(obj.type.properties[0], function (obj) {
+                                this.hasName("innerParam")
+                                    .isFalse(obj.isOptional)
+                                    .areEqual("Number", obj.type.name)
+                                    .isFalse(obj.type.isComplex)
+                                    .hasDescription("inner parameter")
+                            })
+                    })
+            })
 
         });
 
@@ -263,7 +293,7 @@ describe("create", function () {
             var response = result.responses[0];
             expect(response.code).toBe(203);
         });
-        
+
         it("adds any error codes", function () {
             //Arrange
             var block = {
@@ -294,21 +324,20 @@ describe("create", function () {
         
             //Assert
             expect(result.responses.length).toBe(2);
-            var response = result.responses[0];
-            expect(response.code).toBe(401);
-            expect(response.type.properties.length).toBe(1);
-            expect(response.type.isComplex).toBe(true);
-            expect(response.type.properties[0].name).toBe("complex");
-            expect(response.type.properties[0].type.properties[0].name).toBe("val1");
-            response = result.responses[1];
-            expect(response.code).toBe(404);
-            expect(response.type.properties.length).toBe(1);
-            expect(response.type.isComplex).toBe(true);
-            expect(response.type.properties[0].type.name).toBe("String");
-            expect(response.type.properties[0].name).toBe("val2");
-            
+            AssertChain.with(result.responses[0], function (obj) {
+                this.areEqual(401, obj.code)
+                    .isTrue(obj.type.isComplex)
+                    .areEqual(1, obj.type.properties.length)
+                    .areEqual("complex", obj.type.properties[0].name)
+                    .areEqual("val1", obj.type.properties[0].type.properties[0].name)
+            })
+            .with(result.responses[1], function (obj) {
+                this.areEqual(404, obj.code)
+                    .isTrue(obj.type.isComplex)
+                    .areEqual(1, obj.type.properties.length)
+                    .areEqual("String", obj.type.properties[0].type.name)
+                    .areEqual("val2", obj.type.properties[0].name)
+            })
         });
-
-
     });
 });

@@ -1,0 +1,13 @@
+{
+    "targets": ["../integrationTests/v0.1.0"],
+    "configurations": {
+        "DEV": {
+            "path": "Revelio/apiDoc Integration/DEV/0.1.0",
+            "url": "http://dev.apidocintegration.getrevelio.com"
+        },
+        "QA": {
+            "path": "Revelio/apiDoc Integration/QA/0.1.0",
+            "url": "http://qa.apidocintegration.getrevelio.com"
+        }
+    }
+}

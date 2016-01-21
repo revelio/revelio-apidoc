@@ -7,9 +7,13 @@ describe("v0.1.0 integration tests", function () {
     beforeEach(function () {
 
         _serviceClientMock = {
+            createSite: function () { },
+            updateSite: function () { },
             setEndpoint: function () { }
         };
-        spyOn(_serviceClientMock, "setEndpoint");
+        spyOn(_serviceClientMock, "createSite").and.returnValue(getMockPromise({}));
+        spyOn(_serviceClientMock, "setEndpoint").and.returnValue(getMockPromise({}));
+        spyOn(_serviceClientMock, "updateSite").and.returnValue(getMockPromise({}));
         _app.initialize(_serviceClientMock);
     });
 
@@ -169,10 +173,9 @@ describe("v0.1.0 integration tests", function () {
     
     function getEndpointRequest(endpointName) {
         var requests = _serviceClientMock.setEndpoint.calls.all();
-        return _.find(requests.map(function (m) { return m.args[0]; }), 
-        function (m) { 
-            return m.name == endpointName;
-        });
+        for (var i in requests) {
+            if (requests[i].args[0].name == endpointName) return requests[i]
+        }
     }
 
     function publish() {
@@ -182,3 +185,9 @@ describe("v0.1.0 integration tests", function () {
     }
 
 })
+
+function getMockPromise(result) {
+    return {
+        then: function (cb, err) { if (cb) cb(result) }
+    }
+}
