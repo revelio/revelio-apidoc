@@ -293,6 +293,42 @@ describe("create", function () {
             var response = result.responses[0];
             expect(response.code).toBe(203);
         });
+        
+        it("supports response groups", function () {
+            //Arrange
+            var block = {
+                success: {
+                    fields: {
+                        "groupName": [
+                            {
+                                type: "String",
+                                optional: "false",
+                                field: "param1",
+                                description: "param1 description"
+                            }
+                        ]
+                    }
+                },
+                responses: {
+                    groupName: {
+                        code: 234,
+                        description: "response description"
+                    }
+                }
+            };
+            
+            
+            //Act
+            var result = factory.create(block);
+            
+            //Assert
+            AssertChain.with(result.responses[0], function (obj) {
+                this.areEqual(234, obj.code)
+                    .hasDescription("response description")
+            })
+            
+        });
+        
 
         it("adds any error codes", function () {
             //Arrange
@@ -340,4 +376,31 @@ describe("create", function () {
             })
         });
     });
+    
+    describe("metadata", function () {
+        it("adds metadata if it exists", function () {
+            //Arrange
+            var block = {
+                metadata: {
+                    item1: "some value",
+                    item2: {
+                        complex: "type"
+                    },
+                    item3: ["an array", "of values"]
+                }
+            }
+            
+            //Act
+            var result = factory.create(block);
+            
+            //Assert
+            expect(result.metadata.item1).toBe("some value")
+            expect(result.metadata.item2.complex).toBe("type")
+            expect(result.metadata.item3.length).toBe(2)
+            expect(result.metadata.item3[0]).toBe("an array")
+            expect(result.metadata.item3[1]).toBe("of values")
+            
+        });
+        
+    })
 });

@@ -1,6 +1,7 @@
 var program = require("commander")
 var app = require("./lib/app");
 var async = require("async")
+var _ = require("underscore")
 
 program.arguments("<configPath> <revelioUrl> [configName] [options]")
     //.version('0.1.0')
@@ -89,11 +90,15 @@ function getConfig(configPath, configName, getConfigCb) {
             return;
         }
         
+        var configDir = path.dirname(configPath)
+        
         var revelioConfig = {
                 targets: normalizePaths(config.targets),
                 path: config.path,
-                url: config.url
+                url: config.url,
+                parsers: config.parsers
             };
+        
             
         if (configName) {
             if (!config.configurations || 
@@ -102,20 +107,28 @@ function getConfig(configPath, configName, getConfigCb) {
                 return;
             }
             
+            
             var childConfig = config.configurations[configName];
             if (childConfig.targets) revelioConfig.targets = normalizePaths(childConfig.targets)
             if (childConfig.path) revelioConfig.path = childConfig.path
             if (childConfig.url) revelioConfig.url = childConfig.url
+            if (childConfig.parsers) revelioConfig.parsers = childConfig.parsers
+        }
+        
+        if (revelioConfig.parsers) {
+            revelioConfig.parsers = _.mapObject(revelioConfig.parsers, function (file) {
+                return normalizePath(file);
+            })
         }
         
         function normalizePaths(targets) {
             if (!targets) return null
-            
-            var configDir = path.dirname(configPath)
-            
-            return targets.map(function (t) {
-                return path.resolve(configDir, t)
-            })
+                        
+            return targets.map(normalizePath)
+        }
+        
+        function normalizePath(target) {
+            return path.resolve(configDir, target)
         }
         
         cb(null, revelioConfig)

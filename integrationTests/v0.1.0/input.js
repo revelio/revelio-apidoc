@@ -77,3 +77,27 @@ function endpointWithOptional() {
 function endpointWithErrors() {
     
 }
+
+/**
+ * @api {get} /endpoint/namedsuccess
+ * @apiName endpointWithNamedSuccess
+ * @apiDescription This endpoint has a named success
+ * @apiResponse (success) 201 Everything is good
+ * @apiError (success) {String} name User name
+ * @apiError (success) {Int32} id User Id
+ */
+function endpointWithNamedSuccess() {
+    
+}
+
+/**
+ * @api {get} /endpoint/namederror
+ * @apiName endpointWithNamedError
+ * @apiDescription This endpoint has a named error
+ * @apiResponse (userNotFound) 404 User not found
+ * @apiError (userNotFound) {String} errors Some errors
+ * @apiError (userNotFound) {Int32} errorCode An error code
+ */
+function endpointWithNamedError() {
+    
+}
