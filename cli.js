@@ -4,24 +4,14 @@ var async = require("async")
 var _ = require("underscore")
 
 program.arguments("<configPath> <revelioUrl> [configName] [options]")
-    //.version('0.1.0')
-    // .option('-f, --file <configFile>')
-    // .option('-u, --url <revelioUrl>')
-    // .option('-c, --config <configName>')
     .option('-p, --publicKey <publicKey>', 'public API key')
     .option('-s, --secretKey <secretKey>', 'secret API key')
-    // .action(function (configPath, revelioUrl, configName, pk) {
-    //     program.configPath = configPath
-    //     program.revelioUrl = revelioUrl
-    //     program.configName = configName
-    // })
     .parse(process.argv);
 
 program.configPath = program.args[0];
 program.revelioUrl = program.args[1];
 program.configName = program.args[2];
-var serviceClient = require("./lib/revelioServiceClient");
-app.initialize(serviceClient);
+var publisher = require("revelio-publisher");
 
 var revelioConfig;
 
@@ -149,7 +139,7 @@ function getConfig(configPath, configName, getConfigCb) {
 }
 
 function setRevelioUrl(cb) {
-    serviceClient.setRevelioUrl(program.revelioUrl);
+    publisher.setRevelioUrl(program.revelioUrl)
     cb();
 }
 
@@ -157,7 +147,7 @@ function setApiKey(cb) {
     if (program.publicKey) {
         if (!program.secretKey) cb("You must provide both public and secret API keys")
         
-        serviceClient.setApiKey(program.publicKey, program.secretKey);
+        publisher.setApiKey(program.publicKey, program.secretKey);
     } 
     else if (program.secretKey) cb("You must provide both public and secret API keys")
     

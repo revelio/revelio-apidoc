@@ -14,25 +14,20 @@ describe("publish tests", function () {
     var _endpointFactoryMock = {
         create: function () {}
     }
-    var _revelioClientMock = {
-        createSite: function () {},
-        updateSite: function () {},
-        setEndpoint: function () {}
+    var _revelioPublisherMock = {
+        publish: function () {}
     }
-    _proxyquire("../lib/app", {
-        "./docInjector": _injectorMock,
-        "apidoc-core": _apiDocMock,
-        "./endpointFactory": _endpointFactoryMock,
-        "@noCallThru": true
-    });
-
-
 
     var _app;
     
     beforeEach(function () {
-        _app = require("../lib/app")
-        _app.initialize(_revelioClientMock)
+        _app = _proxyquire("../lib/app", {
+            "./docInjector": _injectorMock,
+            "apidoc-core": _apiDocMock,
+            "./endpointFactory": _endpointFactoryMock,
+            "revelio-publisher": _revelioPublisherMock,
+            "@noCallThru": true
+        });
     })
     
     it("returns error if nothing is parsed", function () {
@@ -63,13 +58,7 @@ describe("publish tests", function () {
         }, {
             name: "endpoint2"
         })
-        spyOn(_revelioClientMock, "createSite").and
-            .returnValue(getMockPromise({
-                revision: "rev"
-            }))
-        spyOn(_revelioClientMock, "updateSite").and
-            .returnValue(getMockPromise({}))
-        spyOn(_revelioClientMock, "setEndpoint").and
+        spyOn(_revelioPublisherMock, "publish").and
             .returnValue(getMockPromise({}))
         
         //Act
@@ -83,18 +72,12 @@ describe("publish tests", function () {
             expect(_endpointFactoryMock.create).toHaveBeenCalledWith({
                 name: "block2"
             })
-            expect(_revelioClientMock.createSite)
-                .toHaveBeenCalledWith("site path", "site url")
-            expect(_revelioClientMock.updateSite)
-                .toHaveBeenCalledWith("site path", "rev", "site url", true)
-            expect(_revelioClientMock.setEndpoint)
-                .toHaveBeenCalledWith({
+            expect(_revelioPublisherMock.publish)
+                .toHaveBeenCalledWith("site path", "site url", [{
                     name: "endpoint1"
-                }, "site path", "rev")
-            expect(_revelioClientMock.setEndpoint)
-                .toHaveBeenCalledWith({
+                },{
                     name: "endpoint2"
-                }, "site path", "rev")
+                },])
         })
         .finally(assertPromiseWasFulfilled(promise, done));        
     });
@@ -114,13 +97,7 @@ describe("publish tests", function () {
         }, {
             name: "endpoint2"
         })
-        spyOn(_revelioClientMock, "createSite").and
-            .returnValue(getMockPromise({
-                revision: "rev2"
-            }))
-        spyOn(_revelioClientMock, "updateSite").and
-            .returnValue(getMockPromise({}))
-        spyOn(_revelioClientMock, "setEndpoint").and
+        spyOn(_revelioPublisherMock, "publish").and
             .returnValue(getMockPromise({}))
         var config = { 
             path: "site path", 
