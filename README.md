@@ -1,6 +1,54 @@
 # revelio-apidoc
 Adapter to publish [apidoc](https://github.com/apidoc/apidoc) documentation to a [Revelio](https://www.getrevelio.com) site
 
+
+## Command line parameters
+
+`revelio-apidoc <path_to_configuration_file> <revelio_url> [configuration_name] [options]`
+
+- `path_to_configurationFile` - File path to your configuration file
+- `revelio_url` - URL of your Revelio installation
+- `configuration_name` (optional) - Name of the configuration to use
+- `options`
+ - `--publicKey <publicKey>` - Public API key. Only necessary if your Revelio server requires API key authentication
+ - `--secretKey <secretKey>` - Secret API key. Only necessary if your Revelio server requires API key authentication
+
+## Configuration file
+
+In order to publish documentation to Revelio, you need to create a Revelio configuration file.
+This contains information about how to read documentation from your code and 
+how it should be shown in Revelio.
+
+
+### Basic file
+ ```json
+ {
+     "url": "http://myapiurl.com",
+     "targets": [ "../lib/endpoints", "../lib/otherEndpoints" ],
+     "path": "Sample Group/My API/QA/v1.2.3"
+ }
+ ```
+
+### Multiple configurations
+```json
+ {
+     "targets": [ "../lib/endpoints", "../lib/otherEndpoints" ],
+     "configurations": {
+         "DEV": {
+            "url": "http://dev.myapiurl.com",
+            "path": "Sample Group/My API/DEV/v1.2.3"
+         },
+         "QA": {
+            "url": "http://qa.myapiurl.com",
+            "path": "Sample Group/My API/QA/v1.2.3"
+         },
+         "PROD": {
+            "url": "http://myapiurl.com",
+            "path": "Sample Group/My API/PROD/v1.2.3"
+         }
+ }
+```
+ 
 ## Supported attributes
 
 The following are standard apiDoc attributes that Revelio supports
@@ -82,42 +130,6 @@ POST request with JSON payload
  */
 ```
 
-## Configuration file
-
-In order to publish documentation to Revelio, you need to create a Revelio configuration file.
-This contains information about how to read documentation from your code and 
-how it should be shown in Revelio.
-
-
-### Basic file
- ```json
- {
-     "url": "http://myapiurl.com",
-     "targets": [ "../lib/endpoints", "../lib/otherEndpoints" ],
-     "path": "Sample Group/My API/QA/v1.2.3"
- }
- ```
-
-### Multiple configurations
-```json
- {
-     "targets": [ "../lib/endpoints", "../lib/otherEndpoints" ],
-     "configurations": {
-         "DEV": {
-            "url": "http://dev.myapiurl.com",
-            "path": "Sample Group/My API/DEV/v1.2.3"
-         },
-         "QA": {
-            "url": "http://qa.myapiurl.com",
-            "path": "Sample Group/My API/QA/v1.2.3"
-         },
-         "PROD": {
-            "url": "http://myapiurl.com",
-            "path": "Sample Group/My API/PROD/v1.2.3"
-         }
- }
-```
-
 ### Custom parsers
 
 Revelio supports using custom ApiDoc parsers to modify documentation. See the sample parser in `examples/parsers/api_auth.js` or refer to the apiDoc 
@@ -131,14 +143,3 @@ site for more information about creating parsers.
      "parsers": ["./parsers/custom_parser.js"]
  }
  ```
-
-## Command line parameters
-
-`revelio-apidoc <path_to_configuration_file> <revelio_url> [configuration_name] [options]`
-
-- `path_to_configurationFile` - File path to your configuration file
-- `revelio_url` - URL of your Revelio installation
-- `configuration_name` (optional) - Name of the configuration to use
-- `options`
- - `--publicKey <publicKey>` - Public API key. Only necessary if your Revelio server requires API key authentication
- - `--secretKey <secretKey>` - Secret API key. Only necessary if your Revelio server requires API key authentication

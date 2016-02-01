@@ -1,22 +1,21 @@
 var _ = require("underscore");
-var _app = require("../../lib/app.js");
 var AssertChain = require("assertchain-jasmine")
 var Promise = require("bluebird")
+var _proxyquire = require("proxyquire")
 
 describe("v0.1.0 integration tests", function () {
 
-    var _serviceClientMock;
+    var _app
+    var _publisherMock = {
+        publish: function () {}   
+    };
     beforeEach(function () {
-
-        _serviceClientMock = {
-            createSite: function () { },
-            updateSite: function () { },
-            setEndpoint: function () { }
-        };
-        spyOn(_serviceClientMock, "createSite").and.returnValue(getMockPromise({ revision: "rev" }));
-        spyOn(_serviceClientMock, "setEndpoint").and.returnValue(getMockPromise({}));
-        spyOn(_serviceClientMock, "updateSite").and.returnValue(getMockPromise({}));
-        _app.initialize(_serviceClientMock);
+        
+        _app = _proxyquire("../../lib/app.js", {
+            "revelio-publisher": _publisherMock,
+            "@noCallThru": true
+        });
+        spyOn(_publisherMock, "publish").and.returnValue(getMockPromise("success"))
     });
 
     it("properly handles standard input", function (done) {
@@ -242,9 +241,10 @@ describe("v0.1.0 integration tests", function () {
     });
 
     function getEndpointRequest(endpointName) {
-        var requests = _serviceClientMock.setEndpoint.calls.all();
-        for (var i in requests) {
-            if (requests[i].args[0].name == endpointName) return requests[i].args[0];
+        var endpointList = _publisherMock.publish.calls[0].args[2];
+        for (var i in endpointList) {
+            var endpoint = endpointList[i]
+            if (endpoint.name == endpointName) return endpoint;
         }
     }
 
