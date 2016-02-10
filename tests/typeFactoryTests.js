@@ -22,7 +22,7 @@ describe("create", function() {
        //Arrange
        
        //Act
-       var result = _factory.create(null);
+       var result = _factory.create({});
        
        //Assert
        expect(result).toBeNull();       

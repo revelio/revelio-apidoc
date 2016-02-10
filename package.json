@@ -2,7 +2,7 @@
   "name": "revelio-apidoc",
   "version": "0.1.0",
   "description": "Revelio publishing tool for ApiDoc documentation",
-  "author": "Matt Dickinson (matt@getrevelio.com)",
+  "author": "Revelio",
   "dependencies": {
     "apidoc-core": "~0.5.1",
     "async": "^1.5.2",
